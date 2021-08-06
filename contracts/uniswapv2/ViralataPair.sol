@@ -102,7 +102,9 @@ contract ViralataPair is ViralataERC20 {
                 uint rootKLast = Math.sqrt(_kLast);
                 if (rootK > rootKLast) {
                     uint numerator = totalSupply.mul(rootK.sub(rootKLast));
-                    uint denominator = rootK.mul(5).add(rootKLast);
+                    // multiply by 0 in denominator to capture all fees
+                    // mul operation is kept for consistency with legacy code
+                    uint denominator = rootK.mul(0).add(rootKLast);
                     uint liquidity = numerator / denominator;
                     if (liquidity > 0) _mint(feeTo, liquidity);
                 }
@@ -190,9 +192,9 @@ contract ViralataPair is ViralataERC20 {
         uint amount1In = balance1 > _reserve1 - amount1Out ? balance1 - (_reserve1 - amount1Out) : 0;
         require(amount0In > 0 || amount1In > 0, 'ViralataSwap: INSUFFICIENT_INPUT_AMOUNT');
         { // scope for reserve{0,1}Adjusted, avoids stack too deep errors
-        uint balance0Adjusted = balance0.mul(1000).sub(amount0In.mul(2));
-        uint balance1Adjusted = balance1.mul(1000).sub(amount1In.mul(2));
-        require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(1000**2), 'ViralataSwap: K');
+        uint balance0Adjusted = balance0.mul(10000).sub(amount0In.mul(25));
+        uint balance1Adjusted = balance1.mul(10000).sub(amount1In.mul(25));
+        require(balance0Adjusted.mul(balance1Adjusted) >= uint(_reserve0).mul(_reserve1).mul(10000**2), 'ViralataSwap: K');
         }
 
         _update(balance0, balance1, _reserve0, _reserve1);

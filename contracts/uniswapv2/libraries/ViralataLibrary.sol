@@ -23,7 +23,7 @@ library ViralataLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'7407abe42d8fdd249eb034329e8b7d07a602b9af160c7c9b1d40774d274308e7' // init code hash
+                hex'df9ef0b24c9d3288fb72d68cf3f42dec211f1f40172f1aabc2e94dabf254ee7e' // init code hash
             ))));
     }
 
@@ -45,9 +45,9 @@ library ViralataLibrary {
     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
         require(amountIn > 0, 'ViralataLibrary: INSUFFICIENT_INPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'ViralataLibrary: INSUFFICIENT_LIQUIDITY');
-        uint amountInWithFee = amountIn.mul(998);
+        uint amountInWithFee = amountIn.mul(9975);
         uint numerator = amountInWithFee.mul(reserveOut);
-        uint denominator = reserveIn.mul(1000).add(amountInWithFee);
+        uint denominator = reserveIn.mul(10000).add(amountInWithFee);
         amountOut = numerator / denominator;
     }
 
@@ -55,8 +55,8 @@ library ViralataLibrary {
     function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) internal pure returns (uint amountIn) {
         require(amountOut > 0, 'ViralataLibrary: INSUFFICIENT_OUTPUT_AMOUNT');
         require(reserveIn > 0 && reserveOut > 0, 'ViralataLibrary: INSUFFICIENT_LIQUIDITY');
-        uint numerator = reserveIn.mul(amountOut).mul(1000);
-        uint denominator = reserveOut.sub(amountOut).mul(998);
+        uint numerator = reserveIn.mul(amountOut).mul(10000);
+        uint denominator = reserveOut.sub(amountOut).mul(9975);
         amountIn = (numerator / denominator).add(1);
     }
 
