@@ -20,7 +20,7 @@ contract ViralataSwapToken is ERC20, ERC20Permit, Pausable, AccessControl {
     bytes32 public constant TAKE_FEE_ROLE = keccak256("TAKE_FEE_ROLE");
     bytes32 public constant ROUTER_ROLE = keccak256("ROUTER_ROLE");
 
-    uint256 private _cap = 2000000000 * 10**decimals(); // 2 billion tokens is maximum supply
+    uint256 private _maxSupply = 2000000000 * 10**decimals(); // 2 billion tokens is maximum supply
     uint256 private _initialSupply = 200000 * 10**decimals(); // 200,000 tokens is the initial supply
 
     address private _trustedForwarder;
@@ -62,10 +62,10 @@ contract ViralataSwapToken is ERC20, ERC20Permit, Pausable, AccessControl {
     }
 
     /**
-     * @dev Returns the cap on the token's total supply.
+     * @dev Returns the maximum amount of tokens that can be minted.
      */
-    function cap() public view returns (uint256) {
-        return _cap;
+    function maxSupply() public view returns (uint256) {
+        return _maxSupply;
     }
 
     function pause() public onlyRole(PAUSER_ROLE) {
@@ -77,6 +77,7 @@ contract ViralataSwapToken is ERC20, ERC20Permit, Pausable, AccessControl {
     }
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+        require(totalSupply() < _maxSupply, "ERC20: cannot mint more tokens");
         _mint(to, amount);
     }
 
