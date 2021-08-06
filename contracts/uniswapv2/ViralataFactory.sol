@@ -6,6 +6,8 @@ import './interfaces/IViralataFactory.sol';
 import './ViralataPair.sol';
 
 contract ViralataFactory is IViralataFactory {
+    bytes32 public constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(ViralataPair).creationCode));
+
     address public override feeTo;
     address public override feeToSetter;
     address public override migrator;
@@ -21,10 +23,6 @@ contract ViralataFactory is IViralataFactory {
 
     function allPairsLength() external override view returns (uint) {
         return allPairs.length;
-    }
-
-    function pairCodeHash() external pure returns (bytes32) {
-        return keccak256(type(ViralataPair).creationCode);
     }
 
     function createPair(address tokenA, address tokenB) external override returns (address pair) {
