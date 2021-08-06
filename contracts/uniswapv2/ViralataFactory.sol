@@ -28,10 +28,10 @@ contract ViralataFactory is IViralataFactory {
     }
 
     function createPair(address tokenA, address tokenB) external override returns (address pair) {
-        require(tokenA != tokenB, 'Viralata: IDENTICAL_ADDRESSES');
+        require(tokenA != tokenB, 'ViralataSwap: IDENTICAL_ADDRESSES');
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), 'Viralata: ZERO_ADDRESS');
-        require(getPair[token0][token1] == address(0), 'Viralata: PAIR_EXISTS'); // single check is sufficient
+        require(token0 != address(0), 'ViralataSwap: ZERO_ADDRESS');
+        require(getPair[token0][token1] == address(0), 'ViralataSwap: PAIR_EXISTS'); // single check is sufficient
         bytes memory bytecode = type(ViralataPair).creationCode;
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         assembly {
@@ -45,17 +45,17 @@ contract ViralataFactory is IViralataFactory {
     }
 
     function setFeeTo(address _feeTo) external override {
-        require(msg.sender == feeToSetter, 'Viralata: FORBIDDEN');
+        require(msg.sender == feeToSetter, 'ViralataSwap: FORBIDDEN');
         feeTo = _feeTo;
     }
 
     function setMigrator(address _migrator) external override {
-        require(msg.sender == feeToSetter, 'Viralata: FORBIDDEN');
+        require(msg.sender == feeToSetter, 'ViralataSwap: FORBIDDEN');
         migrator = _migrator;
     }
 
     function setFeeToSetter(address _feeToSetter) external override {
-        require(msg.sender == feeToSetter, 'Viralata: FORBIDDEN');
+        require(msg.sender == feeToSetter, 'ViralataSwap: FORBIDDEN');
         feeToSetter = _feeToSetter;
     }
 
