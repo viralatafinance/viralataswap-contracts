@@ -19,6 +19,8 @@ contract ViralataERC20 {
     bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
     mapping(address => uint) public nonces;
 
+    address private _trustedForwarder; // remember to change before deploying
+
     event Approval(address indexed owner, address indexed spender, uint value);
     event Transfer(address indexed from, address indexed to, uint value);
 
@@ -36,6 +38,29 @@ contract ViralataERC20 {
                 address(this)
             )
         );
+    }
+
+    function isTrustedForwarder(address forwarder) public view returns (bool) {
+        return forwarder == _trustedForwarder;
+    }
+
+    function _msgSender() internal view returns (address sender) {
+        if (isTrustedForwarder(msg.sender)) {
+            // The assembly code is more direct than the Solidity version using `abi.decode`.
+            assembly {
+                sender := shr(96, calldataload(sub(calldatasize(), 20)))
+            }
+        } else {
+            return msg.sender;
+        }
+    }
+
+    function _msgData() internal view returns (bytes calldata) {
+        if (isTrustedForwarder(msg.sender)) {
+            return msg.data[:msg.data.length - 20];
+        } else {
+            return msg.data;
+        }
     }
 
     function _mint(address to, uint value) internal {
@@ -62,18 +87,18 @@ contract ViralataERC20 {
     }
 
     function approve(address spender, uint value) external returns (bool) {
-        _approve(msg.sender, spender, value);
+        _approve(_msgSender(), spender, value);
         return true;
     }
 
     function transfer(address to, uint value) external returns (bool) {
-        _transfer(msg.sender, to, value);
+        _transfer(_msgSender(), to, value);
         return true;
     }
 
     function transferFrom(address from, address to, uint value) external returns (bool) {
-        if (allowance[from][msg.sender] != uint(-1)) {
-            allowance[from][msg.sender] = allowance[from][msg.sender].sub(value);
+        if (allowance[from][_msgSender()] != uint(-1)) {
+            allowance[from][_msgSender()] = allowance[from][_msgSender()].sub(value);
         }
         _transfer(from, to, value);
         return true;

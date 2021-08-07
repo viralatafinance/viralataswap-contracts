@@ -126,7 +126,7 @@ contract ViralataPair is ViralataERC20 {
         uint _totalSupply = totalSupply; // gas savings, must be defined here since totalSupply can update in _mintFee
         if (_totalSupply == 0) {
             address migrator = IViralataFactory(factory).migrator();
-            if (msg.sender == migrator) {
+            if (_msgSender() == migrator) {
                 liquidity = IMigrator(migrator).desiredLiquidity();
                 require(liquidity > 0 && liquidity != uint256(-1), "Bad desired liquidity");
             } else {
@@ -142,7 +142,7 @@ contract ViralataPair is ViralataERC20 {
 
         _update(balance0, balance1, _reserve0, _reserve1);
         if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
-        emit Mint(msg.sender, amount0, amount1);
+        emit Mint(_msgSender(), amount0, amount1);
     }
 
     // this low-level function should be called from a contract which performs important safety checks
@@ -167,7 +167,7 @@ contract ViralataPair is ViralataERC20 {
 
         _update(balance0, balance1, _reserve0, _reserve1);
         if (feeOn) kLast = uint(reserve0).mul(reserve1); // reserve0 and reserve1 are up-to-date
-        emit Burn(msg.sender, amount0, amount1, to);
+        emit Burn(_msgSender(), amount0, amount1, to);
     }
 
     // this low-level function should be called from a contract which performs important safety checks
@@ -184,7 +184,7 @@ contract ViralataPair is ViralataERC20 {
         require(to != _token0 && to != _token1, 'ViralataSwap: INVALID_TO');
         if (amount0Out > 0) _safeTransfer(_token0, to, amount0Out); // optimistically transfer tokens
         if (amount1Out > 0) _safeTransfer(_token1, to, amount1Out); // optimistically transfer tokens
-        if (data.length > 0) IViralataCallee(to).uniswapV2Call(msg.sender, amount0Out, amount1Out, data);
+        if (data.length > 0) IViralataCallee(to).uniswapV2Call(_msgSender(), amount0Out, amount1Out, data);
         balance0 = IERC20Viralata(_token0).balanceOf(address(this));
         balance1 = IERC20Viralata(_token1).balanceOf(address(this));
         }
@@ -198,7 +198,7 @@ contract ViralataPair is ViralataERC20 {
         }
 
         _update(balance0, balance1, _reserve0, _reserve1);
-        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
+        emit Swap(_msgSender(), amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
     // force balances to match reserves
