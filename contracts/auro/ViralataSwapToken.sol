@@ -77,7 +77,7 @@ contract ViralataSwapToken is ERC20, ERC20Permit, Pausable, AccessControl {
     }
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
-        require(totalSupply() < _maxSupply, "ERC20: cannot mint more tokens");
+        require(totalSupply() + amount <= _maxSupply, "ERC20: cannot mint more tokens, cap exceeded");
         _mint(to, amount);
     }
 
