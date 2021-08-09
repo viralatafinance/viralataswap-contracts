@@ -82,6 +82,7 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
     event DevAddressChanged(address indexed caller, address oldAddress, address newAddress);
     event FeeAddressChanged(address indexed caller, address oldAddress, address newAddress);
     event AllocPointsUpdated(address indexed caller, uint256 previousAmount, uint256 newAmount);
+    event TokensRescued(address indexed caller, address token, uint256 amount);
 
     modifier onlyOperator() {
         require(_operator == msg.sender, "Operator: caller is not the operator");
@@ -436,5 +437,12 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
 
         totalAllocPoint = totalAllocPoint.sub(poolInfo[_pid].allocPoint).add(_allocPoint);
         poolInfo[_pid].allocPoint = _allocPoint;
+    }
+
+    // Function to remove dust from tokens in the contract
+    function rescueTokens(IERC20 token, uint256 value) external onlyOperator {
+        token.transfer(_msgSender(), value);
+
+        emit TokensRescued(_msgSender(), address(token), value);
     }
 }
