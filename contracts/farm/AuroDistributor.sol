@@ -53,6 +53,12 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
     // Max harvest interval: 14 days
     uint256 public constant MAXIMUM_HARVEST_INTERVAL = 14 days;
 
+    // Bonus multiplier
+    uint256 public constant BONUS_MULTIPLIER = 1;
+
+    // Maximum deposit fee rate: 10%
+    uint16 public constant MAXIMUM_DEPOSIT_FEE_RATE = 1000;
+
     // Info of each pool
     PoolInfo[] public poolInfo;
 
@@ -71,8 +77,6 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
     // Total AURO in AURO Pools (can be multiple pools)
     uint256 public totalAuroInPools = 0;
 
-    // Maximum deposit fee rate: 10%
-    uint16 public constant MAXIMUM_DEPOSIT_FEE_RATE = 1000;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -131,6 +135,11 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
 
     function operator() public view returns (address) {
         return _operator;
+    }
+
+    // Return reward multiplier over the given _from to _to block.
+    function getMultiplier(uint256 _from, uint256 _to) public pure returns (uint256) {
+        return _to.sub(_from).mul(BONUS_MULTIPLIER);
     }
 
     function transferOperator(address newOperator) public onlyOperator {
@@ -202,7 +211,8 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
         uint256 lpSupply = pool.totalLp;
 
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
-            uint256 auroReward = auroPerBlock.mul(pool.allocPoint).div(totalAllocPoint);
+            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);        
+            uint256 auroReward = multiplier.mul(auroPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
             accAuroPerShare = accAuroPerShare.add(auroReward.mul(1e12).div(lpSupply));
         }
 
@@ -232,7 +242,8 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
                 continue;
             }
 
-            uint256 auroReward = auroPerBlock.mul(pool.allocPoint).div(totalAllocPoint);
+            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);        
+            uint256 auroReward = multiplier.mul(auroPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
 
             pool.accAuroPerShare = pool.accAuroPerShare.add(auroReward.mul(1e12).div(pool.totalLp));
             pool.lastRewardBlock = block.number;
