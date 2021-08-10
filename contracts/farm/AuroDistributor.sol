@@ -53,9 +53,6 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
     // Max harvest interval: 14 days
     uint256 public constant MAXIMUM_HARVEST_INTERVAL = 14 days;
 
-    // Bonus multiplier
-    uint256 public constant BONUS_MULTIPLIER = 1;
-
     // Maximum deposit fee rate: 10%
     uint16 public constant MAXIMUM_DEPOSIT_FEE_RATE = 1000;
 
@@ -139,7 +136,7 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
 
     // Return reward multiplier over the given _from to _to block.
     function getMultiplier(uint256 _from, uint256 _to) public pure returns (uint256) {
-        return _to.sub(_from).mul(BONUS_MULTIPLIER);
+        return _to.sub(_from);
     }
 
     function transferOperator(address newOperator) public onlyOperator {
@@ -208,10 +205,10 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accAuroPerShare = pool.accAuroPerShare;
-        uint256 lpSupply = pool.totalLp;
+        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
 
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
-            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);        
+            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
             uint256 auroReward = multiplier.mul(auroPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
             accAuroPerShare = accAuroPerShare.add(auroReward.mul(1e12).div(lpSupply));
         }
@@ -234,18 +231,24 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
         for (uint256 pid = 0; pid < length; ++pid) {
             PoolInfo storage pool = poolInfo[pid];
             if (block.number <= pool.lastRewardBlock) {
-                continue;
+                return;
             }
 
-            if (pool.totalLp == 0 || pool.allocPoint == 0) {
+            uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+            if (lpSupply == 0) {
                 pool.lastRewardBlock = block.number;
-                continue;
+                return;
             }
 
-            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);        
-            uint256 auroReward = multiplier.mul(auroPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
+            uint256 auroReward =
+                multiplier.mul(auroPerBlock).mul(pool.allocPoint).div(
+                    totalAllocPoint
+                );
 
-            pool.accAuroPerShare = pool.accAuroPerShare.add(auroReward.mul(1e12).div(pool.totalLp));
+            pool.accAuroPerShare = pool.accAuroPerShare.add(
+                auroReward.mul(1e12).div(pool.totalLp)
+            );
             pool.lastRewardBlock = block.number;
 
             totalReward.add(auroReward.div(10));
@@ -261,17 +264,24 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
             return;
         }
 
-        if (pool.totalLp == 0 || pool.allocPoint == 0) {
+        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;
             return;
         }
 
-        uint256 auroReward = auroPerBlock.mul(pool.allocPoint).div(totalAllocPoint);
+        uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
+        uint256 auroReward =
+            multiplier.mul(auroPerBlock).mul(pool.allocPoint).div(
+                totalAllocPoint
+            );
 
         auro.mint(devAddress, auroReward.div(10));
         auro.mint(address(this), auroReward);
 
-        pool.accAuroPerShare = pool.accAuroPerShare.add(auroReward.mul(1e12).div(pool.totalLp));
+        pool.accAuroPerShare = pool.accAuroPerShare.add(
+            auroReward.mul(1e12).div(pool.totalLp)
+        );
         pool.lastRewardBlock = block.number;
 
 
