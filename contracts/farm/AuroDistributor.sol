@@ -237,8 +237,8 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
             return;
         }
 
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-        if (lpSupply == 0) {
+        uint256 lpSupply = pool.totalLp;
+        if (lpSupply == 0 || pool.allocPoint == 0) {
             pool.lastRewardBlock = block.number;
             return;
         }

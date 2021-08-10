@@ -213,4 +213,22 @@ contract ViralataPair is ViralataERC20 {
     function sync() external lock {
         _update(IERC20Viralata(token0).balanceOf(address(this)), IERC20Viralata(token1).balanceOf(address(this)), reserve0, reserve1);
     }
+
+    function disableMetaTxns() external {
+        require(_msgSender() == factory, 'ViralataSwap: FORBIDDEN');
+        require(metaTxnsEnabled, "ViralataSwap: META_TXNS_ALREADY_DISABLED");
+
+        metaTxnsEnabled = false;
+
+        emit MetaTxnsDisabled(_msgSender());
+    }
+
+    function enableMetaTxns() external {
+        require(_msgSender() == factory, 'ViralataSwap: FORBIDDEN');
+        require(!metaTxnsEnabled, "ViralataSwap: META_TXNS_ALREADY_ENABLED");
+
+        metaTxnsEnabled = true;
+
+        emit MetaTxnsEnabled(_msgSender());
+    }
 }

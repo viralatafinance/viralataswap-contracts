@@ -57,4 +57,26 @@ contract ViralataFactory is IViralataFactory {
         feeToSetter = _feeToSetter;
     }
 
+    function enableMetaTxnsPair(address pairAddress) external {
+        require(msg.sender == feeToSetter, 'ViralataSwap: FORBIDDEN');
+        require(pairAddress != address(0), 'ViralataSwap: PAIR_NOT_EXISTS');
+
+        ViralataPair pair = ViralataPair(pairAddress);
+
+        require(!pair.metaTxnsEnabled(), 'ViralataSwap: META_TXNS_ALREADY_ENABLED');
+
+        pair.enableMetaTxns();
+    }
+
+    function disableMetaTxnsPair(address pairAddress) external {
+        require(msg.sender == feeToSetter, 'ViralataSwap: FORBIDDEN');
+        require(pairAddress != address(0), 'ViralataSwap: PAIR_NOT_EXISTS');
+
+        ViralataPair pair = ViralataPair(pairAddress);
+
+        require(pair.metaTxnsEnabled(), 'ViralataSwap: META_TXNS_ALREADY_DISABLED');
+
+        pair.disableMetaTxns();
+    }
+
 }

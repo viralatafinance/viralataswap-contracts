@@ -25,7 +25,13 @@ contract ViralataSwapToken is ERC20, ERC20Permit, Pausable, AccessControl {
 
     address private _trustedForwarder;
 
+    // Control support for EIP-2771 Meta Transactions
+    bool public metaTxnsEnabled = false;
+
     event TokensRescued(address indexed sender, address indexed token, uint256 value);
+    event MetaTxnsEnabled(address indexed caller);
+    event MetaTxnsDisabled(address indexed caller);
+
 
     constructor(address trustedForwarder) ERC20("ViralataSwap Token", "AURO") ERC20Permit("ViralataSwap Token") {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -93,5 +99,21 @@ contract ViralataSwapToken is ERC20, ERC20Permit, Pausable, AccessControl {
         token.transfer(_msgSender(), value);
 
         emit TokensRescued(_msgSender(), address(token), value);
+    }
+
+    // Enable support for meta transactions
+    function enableMetaTxns() public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(!metaTxnsEnabled, "Meta transactions are already enabled");
+
+        metaTxnsEnabled = true;
+        emit MetaTxnsEnabled(_msgSender());
+    }
+
+    // Disable support for meta transactions
+    function disableMetaTxns() public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(metaTxnsEnabled, "Meta transactions are already disabled");
+
+        metaTxnsEnabled = false;
+        emit MetaTxnsDisabled(_msgSender());
     }
 }

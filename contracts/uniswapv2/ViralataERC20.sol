@@ -21,8 +21,13 @@ contract ViralataERC20 {
 
     address private _trustedForwarder; // remember to change before deploying
 
+    // Control support for EIP-2771 Meta Transactions
+    bool public metaTxnsEnabled = false;
+
     event Approval(address indexed owner, address indexed spender, uint value);
     event Transfer(address indexed from, address indexed to, uint value);
+    event MetaTxnsEnabled(address indexed caller);
+    event MetaTxnsDisabled(address indexed caller);
 
     constructor() public {
         uint chainId;
@@ -41,7 +46,7 @@ contract ViralataERC20 {
     }
 
     function isTrustedForwarder(address forwarder) public view returns (bool) {
-        return forwarder == _trustedForwarder;
+        return metaTxnsEnabled && forwarder == _trustedForwarder;
     }
 
     function _msgSender() internal view returns (address sender) {
