@@ -222,38 +222,12 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
         return block.number >= startBlock && block.timestamp >= user.nextHarvestUntil;
     }
 
-    //this function make sure even thousands of pool gas fee is still low because transfer is just 1 time
+    // Update reward vairables for all pools. Be careful of gas spending!
     function massUpdatePools() public {
         uint256 length = poolInfo.length;
-        uint256 totalReward = 0;
-
         for (uint256 pid = 0; pid < length; ++pid) {
-            PoolInfo storage pool = poolInfo[pid];
-            if (block.number <= pool.lastRewardBlock) {
-                return;
-            }
-
-            uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-            if (lpSupply == 0) {
-                pool.lastRewardBlock = block.number;
-                return;
-            }
-
-            uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 auroReward =
-                multiplier.mul(auroPerBlock).mul(pool.allocPoint).div(
-                    totalAllocPoint
-                );
-
-            pool.accAuroPerShare = pool.accAuroPerShare.add(
-                auroReward.mul(1e12).div(pool.totalLp)
-            );
-            pool.lastRewardBlock = block.number;
-
-            totalReward.add(auroReward.div(10));
+            updatePool(pid);
         }
-
-        safeAuroTransfer(devAddress, totalReward);
     }
 
     // Update reward variables of the given pool to be up-to-date.
@@ -307,19 +281,15 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
             if (pool.depositFeeBP > 0) {
                 uint256 depositFee = _amount.mul(pool.depositFeeBP).div(10000);
                 pool.lpToken.safeTransfer(feeAddress, depositFee);
-                user.amount = user.amount.add(_amount).sub(depositFee);
-                pool.totalLp = pool.totalLp.add(_amount).sub(depositFee);
 
-                if (address(pool.lpToken) == address(auro)) {
-                    totalAuroInPools = totalAuroInPools.add(_amount).sub(depositFee);
-                }
-            } else {
-                user.amount = user.amount.add(_amount);
-                pool.totalLp = pool.totalLp.add(_amount);
+                _amount = _amount.sub(depositFee);
+            }
 
-                if (address(pool.lpToken) == address(auro)) {
-                    totalAuroInPools = totalAuroInPools.add(_amount);
-                }
+            user.amount = user.amount.add(_amount);
+            pool.totalLp = pool.totalLp.add(_amount);
+
+            if (address(pool.lpToken) == address(auro)) {
+                totalAuroInPools = totalAuroInPools.add(_amount);
             }
         }
         user.rewardDebt = user.amount.mul(pool.accAuroPerShare).div(1e12);
