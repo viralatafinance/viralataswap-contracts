@@ -74,6 +74,9 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
     // Total AURO in AURO Pools (can be multiple pools)
     uint256 public totalAuroInPools = 0;
 
+    // Control support for EIP-2771 Meta Transactions
+    bool public metaTxnsEnabled = false;
+
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -84,6 +87,8 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
     event DevAddressChanged(address indexed caller, address oldAddress, address newAddress);
     event FeeAddressChanged(address indexed caller, address oldAddress, address newAddress);
     event AllocPointsUpdated(address indexed caller, uint256 previousAmount, uint256 newAmount);
+    event MetaTxnsEnabled(address indexed caller);
+    event MetaTxnsDisabled(address indexed caller);
 
     modifier onlyOperator() {
         require(_operator == msg.sender, "Operator: caller is not the operator");
@@ -107,7 +112,7 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
     }
 
     function isTrustedForwarder(address forwarder) public view virtual returns (bool) {
-        return forwarder == _trustedForwarder;
+        return metaTxnsEnabled && forwarder == _trustedForwarder;
     }
 
     function _msgSender() internal view virtual override returns (address sender) {
@@ -428,5 +433,21 @@ contract AuroDistributor is Ownable, ReentrancyGuard {
 
         totalAllocPoint = totalAllocPoint.sub(poolInfo[_pid].allocPoint).add(_allocPoint);
         poolInfo[_pid].allocPoint = _allocPoint;
+    }
+
+    // Enable support for meta transactions
+    function enableMetaTxns() public onlyOperator {
+        require(!metaTxnsEnabled, "Meta transactions are already enabled");
+
+        metaTxnsEnabled = true;
+        emit MetaTxnsEnabled(_msgSender());
+    }
+
+    // Disable support for meta transactions
+    function disableMetaTxns() public onlyOperator {
+        require(metaTxnsEnabled, "Meta transactions are already disabled");
+
+        metaTxnsEnabled = false;
+        emit MetaTxnsDisabled(_msgSender());
     }
 }
