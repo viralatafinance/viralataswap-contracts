@@ -26,6 +26,13 @@ module.exports = {
     apiKey: process.env.ETHERSCAN_API_KEY,
   },
   networks: {
+    bsc: {
+      url: "https://bsc-dataseed.binance.org",
+      accounts,
+      chainId: 56,
+      live: true,
+      saveDeployments: true,
+    },
     "bsc-testnet": {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
