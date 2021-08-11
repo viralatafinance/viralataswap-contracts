@@ -1,4 +1,4 @@
-// const { WNATIVE } = require("@sushiswap/sdk");
+const { WNATIVE } = require("@viralatafinance/viralataswap-sdk");
 
 module.exports = async function ({ getNamedAccounts, deployments }) {
   const { deploy } = deployments;
@@ -9,18 +9,12 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 
   let wethAddress;
 
-//   if (chainId === "31337") {
-//     wethAddress = (await deployments.get("WETH9Mock")).address;
-//   } else if (chainId in WNATIVE) {
-//     wethAddress = WNATIVE[chainId].address;
-//   } else {
-//     throw Error("No WNATIVE!");
-//   }
-
-  if (chainId === "97") {
-      wethAddress = "0xae13d989dac2f0debff460ac112a837c89baa7cd";
-  } else if (chainId === "3") {
-      wethAddress = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
+  if (chainId === "31337") {
+    wethAddress = (await deployments.get("WETH9Mock")).address;
+  } else if (chainId in WNATIVE) {
+    wethAddress = WNATIVE[chainId].address;
+  } else {
+    throw Error("No WNATIVE!");
   }
 
   const factoryAddress = (await deployments.get("ViralataFactory")).address;
