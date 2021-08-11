@@ -20,7 +20,7 @@
       //   bytecode,
       // },
       from: deployer,
-      args: [dev],
+      args: [deployer],
       log: true,
       deterministicDeployment: false,
     });
