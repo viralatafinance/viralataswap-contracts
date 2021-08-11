@@ -28,4 +28,4 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
 };
 
 module.exports.tags = ["ViralataRouter02", "AMM"];
-module.exports.dependencies = ["ViralataSwapToken", "ViralataFactory"];
+module.exports.dependencies = ["ViralataFactory"];
