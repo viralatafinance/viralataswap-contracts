@@ -14,9 +14,16 @@
   
     const { deployer, dev } = await getNamedAccounts();
   
-    const Factory = await ethers.getContractFactory("ViralataFactory")
-
-    const factory = await Factory.attach("0x1421bDe4B10e8dd459b3BCb598810B1337D56842")
+    await deploy("ViralataFactory", {
+      // contract: {
+      //   abi,
+      //   bytecode,
+      // },
+      from: deployer,
+      args: [deployer],
+      log: true,
+      deterministicDeployment: false,
+    });
   };
   
   module.exports.tags = ["ViralataFactory", "AMM"];

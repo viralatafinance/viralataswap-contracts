@@ -1,5 +1,4 @@
 const { WNATIVE } = require("@viralatafinance/viralataswap-sdk");
-const { ethers } = require("hardhat");
 
 module.exports = async function ({ getNamedAccounts, deployments }) {
   const { deploy } = deployments;
@@ -18,9 +17,14 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     throw Error("No WNATIVE!");
   }
 
-  const Router = await ethers.getContractFactory("ViralataRouter02")
+  const factoryAddress = (await deployments.get("ViralataFactory")).address;
 
-  const router = await Router.attach("0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac");
+  await deploy("ViralataRouter02", {
+    from: deployer,
+    args: [factoryAddress, wethAddress],
+    log: true,
+    deterministicDeployment: false,
+  });
 };
 
 module.exports.tags = ["ViralataRouter02", "AMM"];
