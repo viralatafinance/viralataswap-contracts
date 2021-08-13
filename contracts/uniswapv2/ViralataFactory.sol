@@ -11,6 +11,7 @@ contract ViralataFactory is IViralataFactory {
     address public override feeTo;
     address public override feeToSetter;
     address public override migrator;
+    address public override auro;
 
     mapping(address => mapping(address => address)) public override getPair;
     address[] public override allPairs;
@@ -55,6 +56,12 @@ contract ViralataFactory is IViralataFactory {
     function setFeeToSetter(address _feeToSetter) external override {
         require(msg.sender == feeToSetter, 'ViralataSwap: FORBIDDEN');
         feeToSetter = _feeToSetter;
+    }
+
+    function setAuroAddress(address _auro) external override {
+        require(msg.sender == feeToSetter, 'ViralataSwap: FORBIDDEN');
+        require(_auro != address(0), 'ViralataSwap: INVALID_ADDRESS');
+        auro = _auro;
     }
 
     function enableMetaTxnsPair(address pairAddress) external {
