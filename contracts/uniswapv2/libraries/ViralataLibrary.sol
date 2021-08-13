@@ -3,7 +3,6 @@
 pragma solidity >=0.5.0;
 
 import '../interfaces/IViralataPair.sol';
-
 import "./SafeMath.sol";
 
 library ViralataLibrary {

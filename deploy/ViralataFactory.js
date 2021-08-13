@@ -3,15 +3,10 @@
 //     bytecode,
 //     abi,
 //   } = require("../deployments/ropsten/ViralataFactory.json");
-  
-  module.exports = async function ({
-    ethers,
-    getNamedAccounts,
-    deployments,
-    getChainId,
-  }) {
+
+module.exports = async function ({ ethers, getNamedAccounts, deployments, getChainId }) {
     const { deploy } = deployments;
-  
+
     const { deployer, dev } = await getNamedAccounts();
   
     const Factory = await ethers.getContractFactory("ViralataFactory")
