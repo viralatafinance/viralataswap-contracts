@@ -22,7 +22,7 @@ library ViralataLibrary {
                 hex'ff',
                 factory,
                 keccak256(abi.encodePacked(token0, token1)),
-                hex'655f71b32f0fd4af90bb1464d8ef7dcd1ed59e717e394729d849f4ee13389d45' // init code hash
+                hex'1f8a283ca49e2be3a4c310bfa79ed27628edc584d5f528a02daafe1762f41fa2' // init code hash
             ))));
     }
 

@@ -20,7 +20,7 @@ contract ViralataSwapToken is ERC20, ERC20Permit, Pausable, AccessControl {
     bytes32 public constant TAKE_FEE_ROLE = keccak256("TAKE_FEE_ROLE");
     bytes32 public constant ROUTER_ROLE = keccak256("ROUTER_ROLE");
 
-    uint256 private _maxSupply = 20000000000 * 10**decimals(); // 2 billion tokens is maximum supply
+    uint256 private _maxSupply = 20000000000 * 10**decimals(); // 20 billion tokens is maximum supply
     uint256 private _initialSupply = 200000 * 10**decimals(); // 200,000 tokens is the initial supply
 
     address private _trustedForwarder;
@@ -31,7 +31,6 @@ contract ViralataSwapToken is ERC20, ERC20Permit, Pausable, AccessControl {
     event TokensRescued(address indexed sender, address indexed token, uint256 value);
     event MetaTxnsEnabled(address indexed caller);
     event MetaTxnsDisabled(address indexed caller);
-
 
     constructor(address trustedForwarder) ERC20("ViralataSwap Token", "AURO") ERC20Permit("ViralataSwap Token") {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());

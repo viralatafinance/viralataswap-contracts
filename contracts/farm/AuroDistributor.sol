@@ -11,7 +11,7 @@ import "./IAuroERC20.sol";
 contract AuroDistributor is Ownable, ReentrancyGuard {
 
     // remember to change for mainnet deploy
-    address constant _trustedForwarder = 0xEa9983bBb6FD1f95cd0A40275c6aC51B56Ae6176;
+    address constant _trustedForwarder = 0xA58B6fC9264ce507d0B0B477ceE31674341CB27e; //BSC TRUSTED FORWARDER
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
